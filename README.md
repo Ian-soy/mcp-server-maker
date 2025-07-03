@@ -6,7 +6,7 @@ This is a TypeScript-based MCP server help you write new notes.
 
 ## preview
 
-![](./public/1.png)
+![](1.png)
 
 ## Features
 
