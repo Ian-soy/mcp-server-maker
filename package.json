@@ -1,6 +1,6 @@
 {
-  "name": "mcp-server-maker",
-  "version": "0.0.1",
+  "name": "@mcpconnectworld/mcp-server-maker",
+  "version": "0.0.2",
   "description": "write notes new content",
   "private": false,
   "type": "module",
