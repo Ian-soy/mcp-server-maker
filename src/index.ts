@@ -19,6 +19,27 @@ import {
 import { MakerClient } from"./maker.js";
 
 /**
+ * 从从命令行参数中读取 flomo_api_url
+ * Parse command line arguments
+ * Example: node index.js --flomo_api_url=https://flomoapp.com/iwh/xxx/xxx/
+ */
+function parseArgs() {
+  const args: Record<string, string> = {};
+  process.argv.slice(2).forEach((arg) => {
+    if (arg.startsWith("--")) {
+      const [key, value] = arg.slice(2).split("=");
+      args[key] = value;
+    }
+  });
+  return args;
+}
+
+const args = parseArgs();
+const apiUrl = args.flomo_api_url || process.env.FLOMO_API_URL || "";
+
+// node build/index.js --flomo_api_url=https://flomoapp.com/iwh/MTA4MjYz/1b5817dcd3decd55c834249fd9c7f9ae/
+
+/**
  * Create an MCP server with capabilities for resources (to list/read notes),
  * tools (to create new notes), and prompts (to summarize notes).
  */
@@ -66,21 +87,36 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (request.params.name) {
     case "write_note": {
+
+      if (!apiUrl) {
+        throw new Error("Flomo API URL not set");
+      }
+
       const content = String(request.params.arguments?.content);
       if (!content) {
         throw new Error("Title and content are required");
       }
 
       // 网上找的测试地址
-      const apiUrl = "https://flomoapp.com/iwh/MTA4MjYz/1b5817dcd3decd55c834249fd9c7f9ae/";
+      // const apiUrl = "https://flomoapp.com/iwh/MTA4MjYz/1b5817dcd3decd55c834249fd9c7f9ae/";
 
       const maker = new MakerClient({ apiUrl });
       const resp = await maker.writeNote({ content });
 
+      // 增加详情页的反悔，以便查看
+      if (!resp.memo || !resp.memo.slug) {
+      throw new Error(
+          `Failed to write note to flomo: ${resp?.message || "unknown error"}`
+        );
+      }
+
+      const flomoUrl = `https://v.flomoapp.com/mine/?memo_id=${resp.memo.slug}`;
+
       return {
         content: [{
           type: "text",
-          text: `make a note success ${JSON.stringify(resp)}`
+          // text: `make a note success ${JSON.stringify(resp)}` // 测试反悔地址
+          text: `make a note success, flomo url: ${flomoUrl}`
         }]
       };
     }

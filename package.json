@@ -4,8 +4,9 @@
   "description": "write notes new content",
   "private": false,
   "type": "module",
+  "homepage": "https://github.com/Ian-soy/mcp-server-maker",
   "bin": {
-    "mcp-server-flomo": "./build/index.js"
+    "mcp-server-maker": "./build/index.js"
   },
   "files": [
     "build"
